@@ -1,3 +1,10 @@
+
+"""
+
+    Estudiantes Braian Marin Puerta, Juan Pablo Alviz Velasquez, Maria Juanita Camargo Prado
+
+"""
+# Declaraciones de los tokens
 palabras_reservadas_bucles = ["Mientras", "Para"]
 palabras_decision = ["si", "sino", "otro"]
 palabras_clase = ["clase", "interfaz", "enumerador", "extiende", "implementa"]
@@ -29,11 +36,15 @@ operadores_asignacion = ["=", "⊕=", "⊥=", "⊗=", "⊘=", "○="]
 simbolos_abrir = ["(", "[", "{"]
 simbolos_cerrar = [")", "]", "}"]
 
+# Variable que nos ayuda a guardar el resultado del analisis y que es
+# usada en los distintos metodos
 global resultado
 resultado = ""
 
 class AnalizadorLexico:
 
+    # Metodo que ayuda a cortar las palabras identificadas
+    # de una cadena que ha sido procesada.
     def recortar_cadena(self, cadena1, cadena2):
         while cadena2.startswith(" "):
             cadena2 = cadena2[1:]
@@ -41,6 +52,9 @@ class AnalizadorLexico:
             return cadena2[len(cadena1):], True
         return cadena2, False
 
+    # Este metodo verifica si la cadena enviada cumple con el criterio de identificador
+    # este consiste en empezar por cualquier letra, mayuscula o minuscula, luego
+    # puede contener tantas letras como numeros se desee sin simbolos ni espacios.
     def es_identificador(self, cadena):
         if not cadena:
             return False
@@ -51,6 +65,8 @@ class AnalizadorLexico:
                 return False
         return True
 
+    # Este metodo verifica si la cadena enviada cumple con el criterio
+    # de un numero entero, por ejemplo 23123
     def es_entero(self, cadena):
         if not cadena:
             return False
@@ -59,6 +75,8 @@ class AnalizadorLexico:
                 return False
         return True
 
+    # Este metodo verifica si la cadena enviada cumple con el criterio
+    # de un numero con punto flotante, es decir por ejemplo 2312.531
     def es_flotante(self, cadena):
         if not cadena:
             return False
@@ -68,7 +86,9 @@ class AnalizadorLexico:
         return self.es_entero(partes[0]) and self.es_entero(partes[1])
 
     def analizar(self):
+        # Variable donde se guarda el analisis de las cadenas
         global resultado
+        # Arreglo con todos los tokens declarados del lenguaje
         categorias = [
             palabras_reservadas_bucles, palabras_decision, palabras_clase,
             metodos_publicos, metodos_privados, palabra_entero, palabras_reales,
@@ -77,6 +97,7 @@ class AnalizadorLexico:
             simbolos_abrir, simbolos_cerrar
         ]
         
+        # Categorias o tokens para marcar las cadenas
         nombres_categorias = [
             "palabras_reservadas_bucles", "palabras_decision", "palabras_clase",
             "metodos_publicos", "metodos_privados", "palabra_entero", "palabras_reales",
@@ -85,15 +106,15 @@ class AnalizadorLexico:
             "simbolos_abrir", "simbolos_cerrar"
         ]
         
-        #cadena2 = " identificador123 Mientras { dob} cadena 233 224.34 23J %&$"
-
+        # Método que verifica si la cadena pertenece a alguna categoria de las palabras
+        # reservadas, este es un metodo interno de otro metodo de la clase AnalizadorLexico
         def procesar_cadena(cadena2, contador_lineas):
             global resultado
             for nombre_categoria, categoria in zip(nombres_categorias, categorias):
                 for cadena1 in categoria:
                     cadena2, recortado = self.recortar_cadena(cadena1, cadena2)
                     if recortado:
-                        resultado += f"{nombre_categoria}: '{cadena1}' linea: {contador_lineas}\n"
+                        resultado += f"{nombre_categoria}: {cadena1} linea: {contador_lineas}\n"
                         return cadena2, True
             return cadena2, False
         
@@ -104,30 +125,42 @@ class AnalizadorLexico:
 
         contador_lineas = 1
         print(f"Total de líneas del script {contador_lineas}")
+        # Se procesa cada linea del script
         for cadena2 in lineas_script:
+            # Ciclo que se ejecuta mientras la cadena no esté vacía
             while cadena2:
                 procesado = False
                 #Vericiamos si es un comentario
                 if cadena2.strip().startswith("☺☺☺"):
-                        resultado += f"Comentario: '{cadena2.strip()}' linea: {contador_lineas}\n"
+                        resultado += f"Comentario: {cadena2.strip()} linea: {contador_lineas}\n"
                         cadena2 = ""
                         procesado = True
+                # Si la cadena no está procesada como comentario
+                # se intenta procesar como alguno de los tokens
                 if not procesado:
+                    # Retorna la cadena recortada y procesado como True en caso
+                    # de haberse procesado correctamente, por le contrario
+                    # devuelve la cadena sin cortar y procesado como False
                     cadena2, procesado = procesar_cadena(cadena2, contador_lineas)
+                # En caso de no haber sido procesada entre las palabras reservadas
+                # se procesa de la siguiente manera.
                 if not procesado and cadena2:
                     # Extraer identificador o número
                     i = 0
                     while i < len(cadena2) and (cadena2[i].isalnum() or cadena2[i] == '.'):
                         i += 1
                     subcadena = cadena2[:i]
+                    # Este condicional verifica si la subcadena es un identificador
                     if self.es_identificador(subcadena):
-                        resultado += f"Identificador encontrado: '{subcadena}' linea: {contador_lineas}\n"
+                        resultado += f"Identificador: {subcadena} linea: {contador_lineas}\n"
                         cadena2 = cadena2[i:]
+                    # Este condicional verifica si la subcadena es un numero entero
                     elif self.es_entero(subcadena):
-                        resultado += f"Entero encontrado: '{subcadena}' linea: {contador_lineas}\n"
+                        resultado += f"Entero: {subcadena} linea: {contador_lineas}\n"
                         cadena2 = cadena2[i:]
+                    # Este condicional verifica si es un numero de punto flotante
                     elif self.es_flotante(subcadena):
-                        resultado += f"Flotante encontrado: '{subcadena}' linea: {contador_lineas}\n"
+                        resultado += f"Flotante: {subcadena} linea: {contador_lineas}\n"
                         cadena2 = cadena2[i:]
                     else:
                         error = True
@@ -137,7 +170,7 @@ class AnalizadorLexico:
                                 if cadena2[k] == "'":
                                     #print(f"Último valor de k: {k} para el corte de la cadena: {cadena2}")
                                     subcadena = cadena2[:k+1]
-                                    resultado += f"Asignacion de cadena: '{subcadena}' linea: {contador_lineas}\n"
+                                    resultado += f"asignacion_cadena: {subcadena} linea: {contador_lineas}\n"
                                     cadena2 = cadena2[k+1:]
                                     error = False
                                     break
@@ -164,6 +197,8 @@ class AnalizadorLexico:
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext, messagebox
+import matplotlib.pyplot as plt
+import networkx as nx
 
 class Interfaz:
     def __init__(self, root):
@@ -186,7 +221,7 @@ class Interfaz:
         self.tree.grid(row=2, column=0, padx=10, pady=10)
         
         # Cargar datos en la tabla
-        self.cargar_tabla()
+        #self.cargar_tabla()
         
         # Botón de graficar
         self.plot_button = tk.Button(root, text="Graficar", command=self.graficar)
@@ -201,6 +236,8 @@ class Interfaz:
                 self.text_area.insert(tk.INSERT, contenido)
         except FileNotFoundError:
             messagebox.showerror("Error", "El archivo 'script.txt' no se encuentra.")
+        # Cargar datos en la tabla
+        self.cargar_tabla()
 
     def cargar_tabla(self):
         global resultado
@@ -208,13 +245,17 @@ class Interfaz:
         self.tree.delete(*self.tree.get_children())  # Limpiar la tabla primero
         filas = resultado.split("\n")
         for fila in filas:
-            partes = fila.split(" encontrado: ")
-            if len(partes) == 2:
-                token = partes[0]
-                palabra_linea = partes[1].rsplit(" linea: ", 1)
-                if len(palabra_linea) == 2:
-                    palabra, linea = palabra_linea
-                    self.tree.insert("", "end", values=(token.strip(), palabra.strip(), linea.strip()))
+            token_end_idx = fila.find(" ")
+            linea_start_idx = fila.rfind(" linea: ")
+            
+            if token_end_idx == -1 or linea_start_idx == -1:
+                continue  # Saltar líneas que no tienen el formato esperado
+            
+            token = fila[:token_end_idx]
+            palabra = fila[token_end_idx + 1:linea_start_idx]
+            linea = fila[linea_start_idx + len(" linea: "):]
+
+            self.tree.insert("", "end", values=(token.strip(), palabra.strip(), linea.strip()))
 
     def graficar(self):
         # Método para graficar
@@ -227,9 +268,37 @@ class Interfaz:
             messagebox.showwarning("Advertencia", "Seleccione una fila de la tabla.")
 
     def realizar_grafica(self, palabra):
-        # Método para realizar alguna acción con la palabra seleccionada (graficar)
-        print(f"Graficando para la palabra: {palabra}")
-        # Aquí iría el código para realizar la gráfica con la palabra
+        # Crear el grafo dirigido
+        G = nx.DiGraph()
+        palabra = f"{palabra}"
+        # Crear nodos y aristas
+        for i in range(len(palabra)):
+            G.add_node(f'q{i}')
+            G.add_edge(f'q{i}', f'q{i+1}', label=palabra[i])
+        
+        # Añadir nodo final
+        G.add_node(f'q{len(palabra)}')
+        
+        # Posiciones para los nodos
+        pos = nx.spring_layout(G)
+        
+        # Dibujar nodos
+        nx.draw_networkx_nodes(G, pos, node_color='white', edgecolors='black', node_size=1500)
+        nx.draw_networkx_nodes(G, pos, nodelist=['q0'], node_color='green', edgecolors='black', node_size=1500)
+        nx.draw_networkx_nodes(G, pos, nodelist=[f'q{len(palabra)}'], node_color='yellow', edgecolors='black', node_size=1500)
+        
+        # Dibujar aristas
+        nx.draw_networkx_edges(G, pos)
+        
+        # Dibujar etiquetas de los nodos
+        nx.draw_networkx_labels(G, pos, font_color='black')
+        
+        # Dibujar etiquetas de las aristas
+        edge_labels = {(f'q{i}', f'q{i+1}'): palabra[i] for i in range(len(palabra))}
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+        
+        # Mostrar la gráfica
+        plt.show()
 
 if __name__ == "__main__":
     analizador = AnalizadorLexico()

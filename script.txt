@@ -1,0 +1,18 @@
+
+miClase{
+    ent hola='cadena'
+    dob 1Midob = 23.01⊕35,78
+    flot Midob = 23.01 ⊕ 35
+    dob valor =0
+
+    ☺☺☺ Declaracion de un ciclo cualquiera
+    Mientras (flot i = 10 ♦ 20){
+        Cadena ='⊕ 234 ⊥'
+        valor =234 ⊘ 100
+        i = i 
+    }
+    metodo publico ent{
+
+        ☺☺☺ contenido del metodo
+    }
+}
